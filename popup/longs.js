@@ -6,13 +6,18 @@ const hideShorts = `.style-scope ytd-rich-shelf-renderer {
                     display: none;
                   }`;
 const extensionStatus = document.getElementById('extension-status');
+const statuses = {
+  'active': 'Shorts are banned!',
+  'inactive': 'Shorts are allowed!'
+}
 
 /**
  * Insert the page-hiding CSS into the active tab,
  * send a "longify" message to the content script in the active tab.
  */
 function longify(tabs) {
-  extensionStatus.textContent = 'Shorts are banned!';
+  extensionStatus.textContent = statuses['active'];
+  browser.storage.local.set({'ban-shorts': 'active'});
   browser.tabs.sendMessage(tabs[0].id, {
     command: 'longify',
   });
@@ -23,7 +28,8 @@ function longify(tabs) {
  * send a "reset" message to the content script in the active tab.
  */
 function reset(tabs) {
-  extensionStatus.textContent = 'Shorts are allowed!';
+  extensionStatus.textContent = statuses['inactive'];
+  browser.storage.local.set({'ban-shorts': 'inactive'});
   browser.tabs.sendMessage(tabs[0].id, {
     command: 'show-shorts',
   });
@@ -34,39 +40,6 @@ function reset(tabs) {
  * the content script in the page.
  */
 function listenForEvents() {
-  // Check to make sure 'ban-shorts' is defined in local storage.
-  browser.storage.local.get('ban-shorts').then((ban) => {
-    let banShorts = '1';
-    if (ban === null || ban['ban-shorts'] === null)
-      browser.storage.local.set({'ban-shorts': banShorts});
-    else 
-      banShorts = ban['ban-shorts'];
-
-    return banShorts
-  })
-
-  // Hide or show shorts based on 'ban-shorts'.
-  function updateMessage() {
-    browser.storage.local.get('ban-shorts').then((ban) => {
-      return ban['ban-shorts']
-    }).then((banShorts) => {
-      if (banShorts === '1') {
-        browser.tabs
-          .query({ active: true, currentWindow: true })
-          .then(longify)
-          .catch(reportError);
-      }
-      else if (banShorts === '0') {
-        browser.tabs
-          .query({ active: true, currentWindow: true })
-          .then(reset)
-          .catch(reportError);
-      }
-      else
-        extensionStatus.textContent = 'Error';
-    })
-  }
-
   document.addEventListener("click", (e) => {
     /**
      * Just log the error to the console.
@@ -81,21 +54,30 @@ function listenForEvents() {
       return;
     }
     if (e.target.type === "reset") {
-      browser.storage.local.set({'ban-shorts': '0'});
       browser.tabs
         .query({ active: true, currentWindow: true })
         .then(reset)
         .catch(reportError);
     } else {
-      browser.storage.local.set({'ban-shorts': '1'});
       browser.tabs
         .query({ active: true, currentWindow: true })
         .then(longify)
         .catch(reportError);
     }
-    updateMessage();
   });
-  updateMessage();
+
+  // Ensure that 'ban-shorts' is correctly defined, then update the extension message.
+  browser.storage.local.get('ban-shorts').then((ban) => {
+    if (ban['ban-shorts'] !== 'inactive') {
+      if(ban['ban-shorts'] !== 'active')
+        browser.storage.local.set({'ban-shorts': 'active'}) // Hiding shorts is the default.
+      extensionStatus.textContent = statuses['active'];
+      longify();
+    }
+    else {
+      extensionStatus.textContent = statuses['inactive'];
+    }
+  });
 }
 
 /**

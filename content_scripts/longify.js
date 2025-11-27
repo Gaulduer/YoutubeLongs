@@ -43,8 +43,9 @@ function longify() {
   window.location.href = urlPieces.join('/');
 }
 
+// Only run longify by default if 'ban-shorts' is '1'.
 browser.storage.local.get('ban-shorts').then((ban) => {
-  if (ban['ban-shorts'] === '1')
+  if (ban['ban-shorts'] === 'active')
     longify();
 })
 
