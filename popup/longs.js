@@ -72,7 +72,10 @@ function listenForEvents() {
       if(ban['ban-shorts'] !== 'active')
         browser.storage.local.set({'ban-shorts': 'active'}) // Hiding shorts is the default.
       extensionStatus.textContent = statuses['active'];
-      longify();
+      browser.tabs
+        .query({ active: true, currentWindow: true })
+        .then(longify)
+        .catch(reportError);
     }
     else {
       extensionStatus.textContent = statuses['inactive'];
