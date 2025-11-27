@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Youtube Longs",
   "version": "1.0",
   "description": "Turn off Youtube shorts.",
@@ -9,7 +9,7 @@
 
   "permissions": ["tabs", "activeTab", "storage"],
 
-  "browser_action": {
+  "action": {
     "default_icon": "icons/pants48x48.png",
     "default_title": "Youtube Longs",
     "default_popup": "popup/longs.html"
