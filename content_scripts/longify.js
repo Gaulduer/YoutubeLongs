@@ -44,13 +44,13 @@ function longify() {
 }
 
 // Only run longify by default if 'ban-shorts' is not 'inactive.
-browser.storage.local.get('ban-shorts').then((ban) => {
+chrome.storage.local.get('ban-shorts').then((ban) => {
   if (ban['ban-shorts'] !== 'inactive')
     longify();
 })
 
 // After the page is loaded, commands may be triggered to hide or show shorts.
-browser.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message) => {
   if (message.command === "longify") {
     longify();
   } else if (message.command === "show-shorts") {

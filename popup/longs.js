@@ -17,8 +17,8 @@ const statuses = {
  */
 function longify(tabs) {
   extensionStatus.textContent = statuses['active'];
-  browser.storage.local.set({'ban-shorts': 'active'});
-  browser.tabs.sendMessage(tabs[0].id, {
+  chrome.storage.local.set({'ban-shorts': 'active'});
+  chrome.tabs.sendMessage(tabs[0].id, {
     command: 'longify',
   });
 }
@@ -29,8 +29,8 @@ function longify(tabs) {
  */
 function reset(tabs) {
   extensionStatus.textContent = statuses['inactive'];
-  browser.storage.local.set({'ban-shorts': 'inactive'});
-  browser.tabs.sendMessage(tabs[0].id, {
+  chrome.storage.local.set({'ban-shorts': 'inactive'});
+  chrome.tabs.sendMessage(tabs[0].id, {
     command: 'show-shorts',
   });
 }
@@ -54,12 +54,12 @@ function listenForEvents() {
       return;
     }
     if (e.target.type === "reset") {
-      browser.tabs
+      chrome.tabs
         .query({ active: true, currentWindow: true })
         .then(reset)
         .catch(reportError);
     } else {
-      browser.tabs
+      chrome.tabs
         .query({ active: true, currentWindow: true })
         .then(longify)
         .catch(reportError);
@@ -67,12 +67,12 @@ function listenForEvents() {
   });
 
   // Ensure that 'ban-shorts' is correctly defined, then update the extension message.
-  browser.storage.local.get('ban-shorts').then((ban) => {
+  chrome.storage.local.get('ban-shorts').then((ban) => {
     if (ban['ban-shorts'] !== 'inactive') {
       if(ban['ban-shorts'] !== 'active')
-        browser.storage.local.set({'ban-shorts': 'active'}) // Hiding shorts is the default.
+        chrome.storage.local.set({'ban-shorts': 'active'}) // Hiding shorts is the default.
       extensionStatus.textContent = statuses['active'];
-      browser.tabs
+      chrome.tabs
         .query({ active: true, currentWindow: true })
         .then(longify)
         .catch(reportError);
@@ -93,4 +93,4 @@ function reportExecuteScriptError(error) {
   console.error(`Failed to Youtube longs content script: ${error.message}`);
 }
 
-listenForEvents().catch(reportExecuteScriptError);
+listenForEvents();
