@@ -1,7 +1,13 @@
 const styleID = 'gslse'; // God's special little style element.
-const styleContent = `.style-scope ytd-rich-shelf-renderer {
-                  display: none;
-                }`;
+const styleContent = 
+                `
+                  .style-scope ytd-rich-shelf-renderer {
+                    display: none;
+                  }
+                  .style-scope ytd-reel-shelf-renderer {
+                    display:none;
+                  }  
+                `;
               
 // Add the style element to the document so we can use it later.
 let styleElement = document.createElement('style');
